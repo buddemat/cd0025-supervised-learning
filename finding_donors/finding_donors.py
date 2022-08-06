@@ -509,18 +509,18 @@ from sklearn.svm import SVC
 from sklearn.neighbors import KNeighborsClassifier
 
 # TODO: Initialize the three models 
-clf_A = LogisticRegressionCV() # takes long
-clf_B = AdaBoostClassifier()
-clf_C = GradientBoostingClassifier()
+clf_A = LogisticRegressionCV(random_state = 0) # takes long
+clf_B = AdaBoostClassifier(random_state = 0)
+clf_C = GradientBoostingClassifier(random_state = 0)
 # did some more out of curiosity...
-#clf_A = GaussianNB() # performs badly
-#clf_A = SVC() # takes long, performs badly
-#clf_A = KNeighborsClassifier()  # takes long
-#clf_A = DecisionTreeClassifier()
-#clf_A = SGDClassifier()
-#clf_A = RandomForestClassifier()
-#clf_A = RandomForestClassifier(class_weight="balanced")
-#clf_A = BaggingClassifier()
+#clf_A = GaussianNB(random_state = 0) # performs badly
+#clf_A = SVC(random_state = 0) # takes long, performs badly
+#clf_A = KNeighborsClassifier(random_state = 0)  # takes long
+#clf_A = DecisionTreeClassifier(random_state = 0)
+#clf_A = SGDClassifier(random_state = 0)
+#clf_A = RandomForestClassifier(random_state = 0)
+#clf_A = RandomForestClassifier(random_state = 0, class_weight="balanced")
+#clf_A = BaggingClassifier(random_state = 0)
 
 # TODO: Calculate the number of samples for 1%, 10%, and 100% of the training data
 # HINT: samples_100 is the entire training set i.e. len(y_train)
@@ -608,7 +608,7 @@ from sklearn.model_selection import GridSearchCV
 from sklearn.metrics import make_scorer
 
 # TODO: Initialize the classifier
-clf = GradientBoostingClassifier(verbose = 0)
+clf = GradientBoostingClassifier(random_state = 0, verbose = 0)
 
 # TODO: Create the parameters list you wish to tune, using a dictionary if needed.
 # HINT: parameters = {'parameter_1': [value1, value2], 'parameter_2': [value1, value2]}
@@ -668,7 +668,7 @@ print(grid_fit.best_params_)
 # 
 # The optimized model after performing a GridSearch (3 folds per 72 candidates, totalling 216 fits) is a GradienBoostingClassifier with the parameters `{'learning_rate': 0.1, 'max_depth': 3, 'min_samples_leaf': 2, 'min_samples_split': 6, 'n_estimators': 500}`. 
 # 
-# The model's performance is slightly better than that of the unoptimized one. While the increase seems to be rather low at first glance, it is an increase nonetheless and given the application case, the relatively small gain in prediction performance may very well result in a significant real-world financial gain. In that way, optimization can be considered a success, I would say. On the other hand, when looking at the individual scores of the grid search, there seems to be some fluctuation between the three folds of one parameter permutation, which in some cases is as large as the net increase of the scores between the unoptimized and optimized model, so I am wondering how durable the choice of best estimator is based on that. 
+# The model's performance is slightly better than that of the unoptimized one. While the increase seems to be rather low at first glance, it is an increase nonetheless and given the application case, the relatively small gain in prediction performance may very well result in a significant real-world financial gain. In that way, optimization can be considered a success, I would say. On the other hand, when looking at the individual scores of the grid search, there seems to be some fluctuation between the three folds of one parameter permutation, which in some cases is as large as the net increase of the scores between the unoptimized and optimized model, so I am wondering how durable the choice of best estimator is based on that. I also experimented with different values for the `random_state` and the changes in importance fluctuated as well, so there may not be any real sustainable increase in performance at all. 
 # 
 # Compared with the naive model, the scores of both the unoptimized as well as the optimized model have greatly increased. Since the dataset is imbalanced (and I would think that probably the distribution in real life is even more so), the naive predictor only was correct in roughly 25% of the time. The optimized model should be able to make meaningful predictions.
 # 
@@ -722,7 +722,8 @@ model = GradientBoostingClassifier(learning_rate = 0.1,
                                    min_samples_leaf =  2, 
                                    min_samples_split = 6, 
                                    n_estimators = 500,
-                                   max_depth = 3)
+                                   max_depth = 3,
+                                   random_state = 0)
 model.fit(X_train, y_train)
 
 # TODO: Extract the feature importances using .feature_importances_ 
@@ -748,14 +749,14 @@ vs.feature_plot(importances, X_train, y_train)
 # 
 # (3) My intuition on the feature `hours-per-week` was that people who work a lot of hours often may do so in lower paying jobs. I may have misjudged here, that on the other side of the spectrum, people in high-income jobs also tend to work more hours than average.
 # 
-# (4) It is noteworthy (and maybe even the pivotal point) that the most important features in the automatic rating seem to be _ all the continuous numerical features_. Since the categorical variables were split up using the one-hot encoding scheme, this is not that surprising in hindsight - all former categorical variables are after all not a _single_ feature anymore  but a _series of features_ instead. So in the rating of the features by the GradientBoostingClassifier the parts of these split-up features probably have less predictive power by themselves.
+# (4) It is noteworthy (and maybe even the pivotal point) that the most important features in the automatic rating seem to be _all the continuous numerical features_. Since the categorical variables were split up using the one-hot encoding scheme, this is not that surprising in hindsight - all former categorical variables are after all not a _single_ feature anymore  but a _series of features_ instead. So in the rating of the features by the GradientBoostingClassifier the parts of these split-up features probably have less predictive power by themselves.
 # 
 # 
 
 # ### Feature Selection
 # How does a model perform if we only use a subset of all the available features in the data? With less features required to train, the expectation is that training and prediction time is much lower — at the cost of performance metrics. From the visualization above, we see that the top five most important features contribute more than half of the importance of **all** features present in the data. This hints that we can attempt to *reduce the feature space* and simplify the information required for the model to learn. The code cell below will use the same optimized model you found earlier, and train it on the same training set *with only the top five important features*. 
 
-# In[22]:
+# In[19]:
 
 
 # Import functionality for cloning a model
